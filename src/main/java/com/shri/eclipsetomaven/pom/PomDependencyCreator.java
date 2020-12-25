@@ -9,6 +9,6 @@ public interface PomDependencyCreator {
 
 	public abstract void createPomDependencyFromClasspathEntry(
 			Element dependenciesElement, String pathAttribute, String groupId,
-			String artifactId);
+			String artifactId,String version);
 
 }

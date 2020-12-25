@@ -42,8 +42,21 @@ public class ClasspathToPomConverter {
         }
 
         pomDoc = db.newDocument();
-
-        BasicPomStructure basicPomStructure = new BasicPomStructure(pomDoc, classpathRoot);
+        List<Element> classpathEntryElements = DomEditor.getElements(
+                ClasspathConstants.CLASSPATHENTRY_TAG_NAME,
+                classpathDoc.getDocumentElement());
+        String srcPath=null;
+        for(Element classElement:classpathEntryElements) {
+        	String kind= classElement.getAttribute("kind");
+        	if ("src".equals(kind)) {
+        		String path = classElement.getAttribute("path");
+        		if (!path.startsWith("/")) {
+        			srcPath=path;
+        			break;
+        		}
+        	}
+        }
+        BasicPomStructure basicPomStructure = new BasicPomStructure(pomDoc, classpathRoot,srcPath);
         Element projectElement = basicPomStructure.createBasicPomStructure();
         
         addDependenciesFromClasspath(projectElement);

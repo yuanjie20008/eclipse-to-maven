@@ -6,6 +6,8 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.shri.eclipsetomaven.util.ApplicationConfig;
+
 public class PomDependencyCreatorImpl implements PomDependencyCreator {
     Document pomDoc;
 
@@ -21,32 +23,51 @@ public class PomDependencyCreatorImpl implements PomDependencyCreator {
 	public void createPomDependencyFromClasspathEntry(
             Element dependenciesElement, String pathAttribute) {
         createPomDependencyFromClasspathEntry(dependenciesElement,
-                pathAttribute, null, null);
+                pathAttribute, null, null,null);
     }
 
 
     @Override
 	public void createPomDependencyFromClasspathEntry(
             Element dependenciesElement, String pathAttribute, String groupId,
-            String artifactId) {
+            String artifactId,String version) {
         PomDependency pomDependency = createPomDependency(pathAttribute,
-				groupId, artifactId);
-        createDependencyElement(dependenciesElement, pomDependency);
+				groupId, artifactId,version);
+        if (pomDependency!=null)
+        	createDependencyElement(dependenciesElement, pomDependency);
     }
 
 
     PomDependency createPomDependency(String pathAttribute,
-			String groupId, String artifactId) {
+			String groupId, String artifactId,String version) {
 		assertNotNull(pathAttribute);
+		String jarVersion=version;
 		String jarName = getJarName(pathAttribute);
+		String scope=null;
+		if (pathAttribute.indexOf("/lib/") ==-1){
+			String mavenSetting = ApplicationConfig.INSTANCE.getValue(jarName);
+			if (mavenSetting!=null&&mavenSetting.equalsIgnoreCase("NONE"))return null;
+			if (mavenSetting!=null) {
+				String splits[] = mavenSetting.split(";");
+				if (splits.length>2) {
+					groupId=splits[0];
+					artifactId=splits[1];
+					jarVersion=splits[2];
+				}
+				if (splits.length>3)
+					scope=splits[3];
+			}
+		}
         if (artifactId == null) {
             artifactId = getArtifactId(jarName);
         }
+        if (artifactId!=null&&artifactId.equalsIgnoreCase("EE_LIB"))return null;
         if (groupId == null) {
             groupId = artifactId;
         }
-        String jarVersion = getJarVersion(jarName);
-        PomDependency pomDependency = new PomDependency(groupId, artifactId, jarVersion);
+        if(jarVersion==null)
+        	jarVersion = getJarVersion(jarName);
+        PomDependency pomDependency = new PomDependency(groupId, artifactId, jarVersion,scope);
 		return pomDependency;
 	}
 
@@ -87,6 +108,8 @@ public class PomDependencyCreatorImpl implements PomDependencyCreator {
         appendElement(dependencyElement, "groupId", pomDependency.getGroupId());
         appendElement(dependencyElement, "artifactId", pomDependency.getArtifactId());
         appendElement(dependencyElement, "version", pomDependency.getJarVersion());
+        if (pomDependency.getScope() !=null)
+        	appendElement(dependencyElement, "scope", pomDependency.getScope());
     }
 
     private void appendElement(Element dependencyElement, String tagName,
