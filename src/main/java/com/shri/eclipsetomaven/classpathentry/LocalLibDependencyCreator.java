@@ -1,6 +1,7 @@
 package com.shri.eclipsetomaven.classpathentry;
 
 import static com.shri.eclipsetomaven.ApplicationPropertyConstants.MAVEN_DEPENDENCY_GROUP_ID_DEFAULT;
+import static com.shri.eclipsetomaven.ApplicationPropertyConstants.MAVEN_MODULE_VERSION_DEFAULT;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -17,10 +18,11 @@ public class LocalLibDependencyCreator {
         String pathAttribute = classpathEntryElement
                 .getAttribute(ClasspathConstants.PATH_ATTR);
         String groupId =  ApplicationConfig.INSTANCE.getValue(MAVEN_DEPENDENCY_GROUP_ID_DEFAULT);
+        String version =  ApplicationConfig.INSTANCE.getValue(MAVEN_MODULE_VERSION_DEFAULT);
         String artifactId = pathAttribute.substring(1);
         artifactId = artifactId.replaceAll("\\s", "");
         pomDependencyCreator.createPomDependencyFromClasspathEntry(
-                dependenciesElement, pathAttribute, groupId, artifactId);
+                dependenciesElement, pathAttribute, groupId, artifactId,version);
     }
 
 }
