@@ -21,7 +21,7 @@ public class SrcClasspathEntryProcessor implements ClasspathEntryProcessor {
 				.getAttribute(ClasspathConstants.PATH_ATTR);
 		
 		String convertToMaven = ApplicationConfig.INSTANCE
-				.getValue(CONVERT_TO_MAVEN);
+				.getValue(MOVE_TO_MAVEN);
 		if ("true".equals(convertToMaven)) {
 			moveSourcesToMavenFolders(classpathRoot, pathAttribute);
 		}
